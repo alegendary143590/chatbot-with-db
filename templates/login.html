@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Knowledge Maker - Login</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #222;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0; /* Remove default body margin */
+        }
+
+        .container {
+            width: 400px;
+            margin: 0 auto; /* Center the container horizontally */
+            padding-top: 100px; /* Add more padding at the top */
+        }
+
+        .knowledge-maker {
+            text-align: center;
+            font-size: 36px;
+            font-weight: bold;
+            color: #00bfff;
+            margin-top: 0; /* Remove top margin */
+        }
+
+        .login-heading {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 50px; /* Add more space between headings */
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            margin-right: 10px;
+        }
+
+        .btn-primary:hover {
+            background-color: #0069d9;
+            border-color: #0062cc;
+        }
+
+        .text-spacing {
+            margin-top: 10px;
+        }
+
+        .logo-img {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            height: 100px;
+            width: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo-img">
+        <h1 class="knowledge-maker">Knowledge Maker</h1>
+        <h2 class="login-heading">Login</h2>
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endif %}
+        <form action="/login" method="post">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+    </div>
+</body>
+
+</html>

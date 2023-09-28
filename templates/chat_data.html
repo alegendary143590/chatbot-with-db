@@ -1,0 +1,389 @@
+
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Knowledge Maker</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #222;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .container {
+            margin: 20px;
+            max-width: 95vw;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+        }
+        .panels {
+            display: flex;
+            flex-direction: column;
+            float: left;
+            width: 25%;
+        }
+
+        .projects-panel,
+        .files-panel {
+            padding-right: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .query-panel {
+            float: left;
+            width: 100%;
+        }
+
+        .project-create-container,
+        .file-upload-container,
+        .query-panel-container {
+            border: 1px solid #ccc;
+            padding: 20px;
+        }
+
+        .project-list-container,
+        .file-list-container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        #project-list,
+        #file-list {
+            padding-left: 20px;
+            margin-top: 0;
+        }
+
+        #project-list li,
+        #file-list li {
+            list-style-type: disc;
+            margin-bottom: 5px;
+            word-break: break-all;
+        }
+
+        #chat-container {
+            margin-top: 20px;
+        }
+
+        #chat-messages {
+            height: 500px;
+            overflow-y: scroll;
+            padding: 10px;
+            background-color: #333;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            color: #fff;
+        }
+
+        #chat-input {
+            margin-top: 20px;
+        }
+
+        #user-input {
+            width: 70%;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0069d9;
+            border-color: #0062cc;
+        }
+
+        #username {
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .welcome-container {
+            font-size: x-large;
+            text-align: left;
+        }
+
+        .logout-container {
+            text-align: right;
+        }
+
+        .logout-container .btn-primary {
+            margin-left: 10px;
+        }
+
+        #project-list li,
+        #file-list li {
+            list-style-type: disc;
+            margin-bottom: 5px;
+            word-break: break-all;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #project-list li span,
+        #file-list li span {
+            display: inline-block;
+            max-width: 70%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: middle;
+        }
+
+        #project-list li form,
+        #file-list li form {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .logo-img {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            height: 50px;
+            width: auto;
+        }
+
+        .selected {
+            border: 2px solid white;
+        }
+
+        h5 {
+            color: red;
+        }
+
+        #summary {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+
+        #summary:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+
+        /* Adjust positioning of delete and summary buttons */
+        #file-list li form {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        #delete-summary {
+            display: flex;
+            gap: 5px;
+        }
+
+        #processing {
+            width: 20px;
+            height: 20px;
+        }
+        pre {
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+            display: block;
+            color: #ffffff;
+            font-family: inherit;
+            font-size: inherit;
+        }
+        #file-counter {
+            display: flex;
+        }
+        #counter {
+            display: flex;
+            align-items: flex-end;
+            padding: 10px;
+        }
+        .online-panel {
+            padding-right: 20px;
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+        .online-panel > div {
+            border: 1px solid #ccc;
+            padding: 20px;
+        }
+        #web-counter {
+            padding-left: 10px;
+        }
+        .input-group {
+            width: 75%;
+        }
+    </style>
+
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Knowledge Maker</h1>
+        <!-- Add username and logout button -->
+        <div class="header">
+            {% if username %}
+            <div class="welcome-container">
+                <p>Welcome, <span id="username">{{ username }}</span>!</p>
+            </div>
+            <div class="logout-container">
+                <a href="/chat_data" class="btn btn-primary">Chat Data</a>
+            </div>
+            <div class="logout-container">
+                <a href="/logout" class="btn btn-primary">Logout</a>
+            </div>
+            {% endif %}
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo-img">
+        </div>
+
+
+        <br>
+
+        <div class="query-panel">
+            <div class="query-panel-container">
+                <!-- <div class="header">
+                    <h5 style="display: inline-block;">Query Panel</h5>
+                    <input id="fileupload" type="file" name="fileupload" />
+                    <button id="upload-button" onclick="uploadFile()"> Upload </button>
+                </div> -->
+
+                <div id="chat-container">
+                    <!-- Chat Section -->
+                    <div id="chat-messages">
+                        <!-- Display chat messages here -->
+                        
+                        
+                        
+                    </div>
+                    {% if project_name != "" %}
+                    <div id="chat-input">
+                        <input type="text" id="user-input" class="form-control" placeholder="Ask a question">
+                        <button id="send-button" class="btn btn-primary mt-3">Send</button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        document.getElementById("send-button").addEventListener("click", function(event){
+            var sendButton = this;
+            sendButton.innerHTML = '<img id="processing" src="/static/processing.gif" alt="Processing..." />';
+            sendButton.disabled = true;
+                    // Remove the text from the summary button and show a spinner
+            var user_query = document.getElementById("user-input").value;
+            var msgDiv = document.getElementById("chat-messages");
+            const queryTag = document.createElement("p");
+            var str = 'Query: '+user_query;
+            queryTag.append(str);        
+            msgDiv.appendChild(queryTag);
+            console.log(user_query);
+            $.ajax({
+                url:'/generate',
+                type:'post',
+                data:{prompt:user_query},
+                success: function (response) {
+                    // Process the response here
+                    // Clear the chat-messages
+                    var columns = response["column_names"];
+                    var data = response["results"];
+                    // alert(columns+"\n"+data);
+                    console.log(columns);
+                    console.log(data);
+                    const res_str = document.createElement("h6");
+                    res_str.innerHTML="Answer: ";
+                    msgDiv.append(res_str);
+                    const table = document.createElement("table");
+                    table.id="res_table";
+                    table.className="table table-striped table-dark";
+                    const thead = document.createElement("thead");
+                    const h_tr = document.createElement("tr");
+                    for(let i=0;i<=columns.length;i++){
+                        const th = document.createElement("th");
+                        if(i==0){
+                            th.scope="col";
+                            th.innerHTML="#";
+                            h_tr.append(th);
+                            continue;
+                        }
+                        th.scope="col";
+                        th.innerHTML=columns[i-1];
+                        h_tr.append(th);
+                    }
+                    thead.append(h_tr);
+                    table.append(thead);
+                    const tbody = document.createElement("tbody");
+                    for(let i = 0; i<data.length; i++){
+                        var record = data[i];
+                        console.log(record);
+                        var b_tr = document.createElement("tr");
+                        for(let j=0;j<=record.length;j++){
+                            if(j==0){
+                                const th = document.createElement("th");
+                                th.innerHTML=i;
+                                th.scope="row";
+                                b_tr.append(th);
+                                continue;
+                            }
+                            const td = document.createElement("td");
+                            td.innerHTML=record[j-1];
+                            b_tr.append(td); 
+                        }
+                        tbody.append(b_tr);
+                    }
+                    // data.array.forEach(element => {
+                    //     var b_tr = document.createElement("tr");
+                    //     element.forEach(row=>{
+                    //         const td = document.createElement("td");
+                    //         td.innerHTML=row;
+                    //         b_tr.append(td);
+                    //     });
+                    //     tbody.append(b_tr);
+                    // });
+                    table.append(tbody);
+                    msgDiv.append(table);
+                    // alert(response.length);
+                    console.log(response);
+                    sendButton.innerHTML = 'Send';
+                    sendButton.disabled = false;
+                },
+                error: function (e){
+                    alert("Something wrong. Try again!");
+                    sendButton.innerHTML = 'Send';
+                    sendButton.disabled = false;
+                }
+            });
+            
+        });
+        async function uploadFile() {
+            let formData = new FormData();           
+            formData.append("file", fileupload.files[0]);
+            let response = await fetch('/upload_db', {
+              method: "POST", 
+              body: formData
+            });    
+            let result = await response.json();
+            alert(result);
+        }
+    </script>
+</body>
+
+</html>

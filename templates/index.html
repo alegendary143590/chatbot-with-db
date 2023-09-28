@@ -1,0 +1,651 @@
+
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Knowledge Maker</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #222;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .container {
+            margin: 20px;
+            max-width: 95vw;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+        }
+        .panels {
+            display: flex;
+            flex-direction: column;
+            float: left;
+            width: 25%;
+        }
+
+        .projects-panel,
+        .files-panel {
+            padding-right: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .query-panel {
+            float: left;
+            width: 75%;
+        }
+
+        .project-create-container,
+        .file-upload-container,
+        .query-panel-container {
+            border: 1px solid #ccc;
+            padding: 20px;
+        }
+
+        .project-list-container,
+        .file-list-container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        #project-list,
+        #file-list {
+            padding-left: 20px;
+            margin-top: 0;
+        }
+
+        #project-list li,
+        #file-list li {
+            list-style-type: disc;
+            margin-bottom: 5px;
+            word-break: break-all;
+        }
+
+        #chat-container {
+            margin-top: 20px;
+        }
+
+        #chat-messages {
+            height: 500px;
+            overflow-y: scroll;
+            padding: 10px;
+            background-color: #333;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            color: #fff;
+        }
+
+        #chat-input {
+            margin-top: 20px;
+        }
+
+        #user-input {
+            width: 70%;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0069d9;
+            border-color: #0062cc;
+        }
+
+        #username {
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .welcome-container {
+            font-size: x-large;
+            text-align: left;
+        }
+
+        .logout-container {
+            text-align: right;
+        }
+
+        .logout-container .btn-primary {
+            margin-left: 10px;
+        }
+
+        #project-list li,
+        #file-list li {
+            list-style-type: disc;
+            margin-bottom: 5px;
+            word-break: break-all;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #project-list li span,
+        #file-list li span {
+            display: inline-block;
+            max-width: 70%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: middle;
+        }
+
+        #project-list li form,
+        #file-list li form {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .logo-img {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            height: 50px;
+            width: auto;
+        }
+
+        .selected {
+            border: 2px solid white;
+        }
+
+        h5 {
+            color: red;
+        }
+
+        #summary {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+
+        #summary:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+
+        /* Adjust positioning of delete and summary buttons */
+        #file-list li form {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        #delete-summary {
+            display: flex;
+            gap: 5px;
+        }
+
+        #processing {
+            width: 20px;
+            height: 20px;
+        }
+        pre {
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+            display: block;
+            color: #ffffff;
+            font-family: inherit;
+            font-size: inherit;
+        }
+        #file-counter {
+            display: flex;
+        }
+        #counter {
+            display: flex;
+            align-items: flex-end;
+            padding: 10px;
+        }
+        .online-panel {
+            padding-right: 20px;
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+        .online-panel > div {
+            border: 1px solid #ccc;
+            padding: 20px;
+        }
+        #web-counter {
+            padding-left: 10px;
+        }
+    </style>
+
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Knowledge Maker</h1>
+        <!-- Add username and logout button -->
+        <div class="header">
+            {% if username %}
+            <div class="welcome-container">
+                <p>Welcome, <span id="username">{{ username }}</span>!</p>
+            </div>
+            <div class="logout-container">
+                <a href="/chat_data" class="btn btn-primary">Chat Data</a>
+            </div>
+            <div class="logout-container">
+                <a href="/logout" class="btn btn-primary">Logout</a>
+            </div>
+            {% endif %}
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo-img">
+        </div>
+
+
+        <br>
+
+        <div class="panels">
+            <div class="projects-panel">
+                <div class="project-create-container">
+                    <h3>Projects Panel</h3>
+                    <form action="/create_project" method="post">
+                        <div class="form-group">
+                            <label for="project-name">Project Name:</label>
+                            <input type="text" name="project_name" id="project-name" class="form-control" required>
+                            <button type="submit" class="btn btn-primary mt-3">Create</button>
+                        </div>
+                    </form>
+
+                    {% if project_name == "" %}
+                    <h5>Select/Create a project!!</h3>
+                        {% endif %}
+
+                        {% if projects %}
+                        <div class="project-list-container">
+                            <h4>Projects:</h4>
+                            <ul id="project-list">
+                                {% for project in projects %}
+                                <li class="d-flex align-items-center justify-content-between">
+                                    <form action="/select_project" method="post">
+                                        <input type="hidden" name="project_name" value="{{ project }}">
+                                        <button type="submit"
+                                            class="btn btn-link project-button {% if project == project_name %}selected{% endif %}">{{
+                                            project }}</button>
+                                    </form>
+                                    <form action="/delete_project" method="post">
+                                        <input type="hidden" name="project_name" value="{{ project }}">
+                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                    </form>
+                                </li>
+                                {% endfor %}
+
+                            </ul>
+                        </div>
+
+                        {% endif %}
+                </div>
+            </div>
+            <div class="online-panel">
+                <div>
+                    <h3>Webpages Panel</h3>
+                    <input type="text" id="user-input-web" class="form-control" placeholder="Seperated by comma">
+                    <button id="send-button-web" class="btn btn-primary mt-3" disabled>Upload</button>
+                    <span id="web-counter">0 / 0</span>
+                </div>
+            </div>
+
+            <div class="files-panel">
+                <div class="file-upload-container">
+                    <h3>Files Panel</h3>
+                    {% if project_name != "" %}
+                    <form action="/upload" method="post" enctype="multipart/form-data" id="uploadForm">
+                        <div class="form-group" id="file-upload">
+                          <label for="file">Upload Files:</label>
+                          <input type="file" name="file" id="file" multiple class="form-control-file" onchange="updateUploadButtonState()">
+                          <div id="file-counter">
+                            <button type="button" onclick="uploadFiles()" class="btn btn-primary mt-3" id="upload-button" disabled>Upload</button>
+                            <div id="counter">0 / 0</div>
+                          </div>
+                        </div>
+                      </form>
+                      
+                    {% endif %}
+
+                    {% if files %}
+                    <div class="file-list-container">
+                        <h4>Uploaded Files:</h4>
+                        <ul id="file-list">
+                            {% for file in files %}
+                            <li class="d-flex align-items-center justify-content-between">
+                                <span>{{ file }}</span>
+                                <div id="delete-summary">
+                                    <form action="/delete" method="post">
+                                        <input type="hidden" name="filename" value="{{ file }}">
+                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                    </form>
+                                    <form action="/summary" method="post">
+                                        <input type="hidden" name="filename" value="{{ file }}">
+                                        <button id="summary" type="submit"
+                                            class="btn btn-danger btn-sm summary-button">Summary</button>
+                                    </form>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="query-panel">
+            <div class="query-panel-container">
+                <div class="header">
+                    <h3 style="display: inline-block;">Query Panel</h3>
+                    <button id="reset-button" class="btn btn-danger ml-3">Reset</button>
+                </div>
+
+                <div id="chat-container">
+                    <!-- Chat Section -->
+                    <div id="chat-messages">
+                        <!-- Display chat messages here -->
+                        {% for query_response in queries %}
+                        <div class="message">
+                            <p><strong>{{ query_response.type }}: </strong> {{ query_response.query }}</p>
+                            <p><strong>Response: </strong>{{ query_response.response }}</p>
+                            {% for source in query_response.sources %}
+                            <p><strong>Source: </strong>{{ source }}</p>
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
+                        
+                    </div>
+                    {% if project_name != "" %}
+                    <div id="chat-input">
+                        <input type="text" id="user-input" class="form-control" placeholder="Ask a question">
+                        <button id="send-button" class="btn btn-primary mt-3">Send</button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+    <script>
+        //Function to handle file upload
+        function uploadFiles() {
+        var form = $('#uploadForm')[0];
+        var formData = new FormData(form);
+        var files = $('input[type="file"]')[0].files;
+        var fileCount = files.length;
+        var uploadedCount = 0;
+        var uploadButton = $('#upload-button');
+        var sendButton =  document.getElementById('send-button');
+
+        // Disable the file input and change button text to "Loading"
+        $('input[type="file"]').prop('disabled', true);
+        uploadButton.prop('disabled', true).html('<img id="processing" src="/static/processing.gif" alt="Processing..." />');
+        sendButton.style.display = "none";
+
+        function uploadFile(index) {
+            if (index >= fileCount) {
+            // All files have been uploaded, clear the file selection
+            $('input[type="file"]').val('');
+            $('input[type="file"]').prop('disabled', false);
+
+            // Revert button text to "Upload" and enable it
+            uploadButton.prop('disabled', false).text('Upload');
+            // Redirect to /home after all files have been uploaded
+            window.location.href = '/home';
+            return;
+            }
+
+            formData.delete('file');
+            formData.append('file', files[index]);
+
+            $.ajax({
+            url: '/upload',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(response) {
+                uploadedCount++;
+                $('#counter').text(uploadedCount + ' / ' + fileCount);
+                uploadFile(index + 1);
+            },
+            error: function() {
+                // Handle errors if necessary
+            }
+            });
+        }
+
+        uploadFile(0);
+        }
+
+        
+        // Function to update the state of the upload button
+        function updateUploadButtonState() {
+            var fileInput = document.getElementById('file');
+            var uploadButton = document.getElementById('upload-button');
+            var counter = document.getElementById('counter');
+
+            // Enable the upload button if any file is selected, disable it otherwise
+            if (fileInput.files.length > 0) {
+                uploadButton.disabled = false;
+                counter.innerText = '0 / ' + fileInput.files.length;
+            } else {
+                uploadButton.disabled = true;
+                counter.innerText = '';
+            }
+        }
+
+        // Function to update the state of the send button
+        function updateSendButtonState() {
+            var userInput = document.getElementById('user-input');
+            var sendButton = document.getElementById('send-button');
+
+            // Enable the send button if there is text in the input field, disable it otherwise
+            if (userInput.value.trim() !== '') {
+                sendButton.disabled = false;
+            } else {
+                sendButton.disabled = true;
+            }
+        }
+
+        function updateWebButtonState(){
+            var userInput = document.getElementById('user-input-web');
+            var sendButton = document.getElementById('send-button-web');
+            var webCounter = document.getElementById("web-counter");
+            if (userInput.value.trim() !== '') {
+                sendButton.disabled = false;
+                var texts = userInput.value.split(",");
+                var urlCount = texts.length;
+                webCounter.innerText = 0 + " / " + urlCount;
+            } else {
+                sendButton.disabled = true;
+            }
+        }
+
+        // Add event listener for the input field's value change
+        document.getElementById('user-input').addEventListener('input', updateSendButtonState);
+        document.getElementById('user-input-web').addEventListener('input', updateWebButtonState);
+
+        // Disable the send button initially
+        document.getElementById('send-button').disabled = true;
+
+        // Add event listener for the Send button
+        document.getElementById('send-button').addEventListener('click', function (event) {
+            event.preventDefault();
+            var userQuery = document.getElementById('user-input').value;
+            if (userQuery.trim() !== '') {
+                var sendButton = this;
+
+                // Remove the text from the summary button and show a spinner
+                sendButton.innerHTML = '<img id="processing" src="/static/processing.gif" alt="Processing..." />';
+                sendButton.disabled = true;
+
+                // Perform AJAX request to the '/query' endpoint with userQuery
+                $.post('/query', { query: userQuery }, function (response) {
+                    // Process the response here
+                    // Display the response in the chat-messages div
+                    console.log(response);
+                    var chatMessagesDiv = document.getElementById('chat-messages');
+                    var messageDiv = document.createElement('div');
+                    messageDiv.className = 'message';
+                    messageDiv.innerHTML = '<p><b>Response: </b>' + response["response"] + '</p>';
+                    chatMessagesDiv.appendChild(messageDiv);
+                    
+
+                    var sources = response.sources;
+                    sources.forEach(function(source) {
+                        var messageDiv = document.createElement('div');
+                        messageDiv.innerHTML = '<p><b>Source: </b>' + source + '</p>';
+                        chatMessagesDiv.appendChild(messageDiv);
+                    });
+
+                    // Restore the original text of the summary button
+                    chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+                    sendButton.innerHTML = 'Send';
+                    sendButton.disabled = false;
+                });
+            }
+            
+            // Clear the user input field and append query
+            var chatMessagesDiv = document.getElementById('chat-messages');
+            var messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            messageDiv.innerHTML = '<p><strong>Query:</strong> ' + userQuery + '</p>';
+            chatMessagesDiv.appendChild(messageDiv);
+            chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+            document.getElementById('user-input').value = '';
+            // Disable the send button after sending the query
+            document.getElementById('send-button').disabled = true;
+        });
+        // web button
+        document.getElementById('send-button-web').addEventListener('click', function (event) {
+            event.preventDefault();
+            var userQuery = document.getElementById('user-input-web').value;
+            if (userQuery.trim() !== '') {
+                var uploadButton = this;
+                var inputField = document.getElementById('user-input-web');
+                var sendButton = document.getElementById('send-button');
+                var webCounter = document.getElementById("web-counter")
+
+                // Disable the input field and upload button
+                inputField.disabled = true;
+                uploadButton.innerHTML = '<img id="processing" src="/static/processing.gif" alt="Processing..." />';
+                sendButton.style.display = "none";
+                uploadButton.disabled = true;
+
+                // Split the user input into an array of texts using commas as the separator
+                var texts = userQuery.split(",");
+                var uploadCount = texts.length;
+                var completedUploads = 0;
+
+                // Define a function to upload the next text in the array
+                function uploadNextText(index) {
+                    if (index >= texts.length) {
+                        // All uploads are complete
+
+                        // Enable the input field and upload button
+                        inputField.disabled = false;
+                        uploadButton.disabled = false;
+
+                        // Clear the input field
+                        inputField.value = '';
+                        window.location.href = '/';
+                        return;
+                    }
+
+                    var text = texts[index].trim();
+
+                    // Make an AJAX post request to the /webupload route using $.post
+                    $.post('/webupload', { text: text })
+                        .done(function(response) {
+                            // Request successful, do something
+                            console.log('Upload successful:', text);
+
+                            completedUploads++;
+                            webCounter.innerText = completedUploads + " / " + uploadCount;
+
+                            // Upload the next text recursively
+                            uploadNextText(index + 1);
+                        })
+                        .fail(function(error) {
+                            // Request failed, do something
+                            console.error('Upload failed:', text);
+
+                            completedUploads++;
+
+                            // Upload the next text recursively
+                            uploadNextText(index + 1);
+                        });
+                }
+
+                // Start uploading the first text
+                uploadNextText(0);
+            }
+        });
+
+
+
+
+        // Add event listener for the Summary button
+        document.querySelectorAll('.summary-button').forEach(function (button) {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+                var fileName = this.closest('form').querySelector('input[name="filename"]').value;
+                if (fileName.trim() !== '') {
+                    var summaryButton = this;
+
+                    // Remove the text from the summary button and show a spinner
+                    summaryButton.innerHTML = '<img id="processing" src="/static/processing.gif" alt="Processing..." />';
+                    summaryButton.disabled = true;
+
+                    // Perform AJAX request to the '/summary' endpoint with fileName
+                    $.post('/summary', { filename: fileName }, function (response) {
+                        // Process the response here
+                        // Display the response in the chat-messages div
+                        var chatMessagesDiv = document.getElementById('chat-messages');
+                        var messageDiv = document.createElement('div');
+                        messageDiv.className = 'message';
+                        messageDiv.innerHTML = '<p><strong>Summary for: </strong>' + fileName + '</p>' +
+                            '<p><strong>Response:</strong> ' + response["response"] + '</p>';
+                        chatMessagesDiv.appendChild(messageDiv);
+                        chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+
+                        // Restore the original text of the summary button
+                        summaryButton.innerHTML = 'Summary';
+                        summaryButton.disabled = false;
+                    });
+                }
+            });
+        });
+
+        document.getElementById('reset-button').addEventListener('click', function (event) {
+            event.preventDefault();
+            // Perform AJAX request to the '/reset' endpoint
+            $.post('/reset', function (response) {
+                // Process the response here
+                // Clear the chat-messages div
+                var chatMessagesDiv = document.getElementById('chat-messages');
+                chatMessagesDiv.innerHTML = '';
+            });
+        });
+
+
+    </script>
+</body>
+
+</html>
